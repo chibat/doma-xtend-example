@@ -1,0 +1,47 @@
+plugins {
+    // Apply the java-library plugin to add support for Java Library
+    //id 'java-library'
+    id "org.xtext.xtend" version "2.0.2"
+}
+
+apply plugin: 'java'
+
+version = '2.23.0-SNAPSHOT'
+ext.dependentVersion = '2.22.0'
+
+task copyDomaResources(type: Sync)  {
+    from sourceSets.main.resources.srcDirs
+    into compileJava.destinationDir
+    include 'doma.compile.config'
+    include 'META-INF/**/*.sql'
+    include 'META-INF/**/*.script'
+}
+
+compileJava {
+    dependsOn copyDomaResources
+    options.encoding = 'UTF-8'
+}
+
+compileTestJava {
+    options.encoding = 'UTF-8'
+    options.compilerArgs = ['-proc:none']
+}
+
+repositories {
+    jcenter()
+    mavenLocal()
+    maven {url 'https://oss.sonatype.org/content/repositories/snapshots/'}
+}
+
+dependencies {
+    annotationProcessor "org.seasar.doma:doma:${dependentVersion}"
+    implementation "org.seasar.doma:doma:${dependentVersion}"
+    implementation 'org.eclipse.xtend:org.eclipse.xtend.lib:2.16.0'
+    runtimeOnly 'com.h2database:h2:1.3.175'
+    testImplementation 'junit:junit:4.11'
+}
+
+apply from:'eclipse.gradle'
+
+apply plugin: 'idea'
+idea.module.inheritOutputDirs = true
